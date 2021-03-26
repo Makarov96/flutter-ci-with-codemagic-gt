@@ -1,0 +1,109 @@
+---------------------------------
+Local SetUp
+---------------------------------
+1 crear repositorio
+2 unirlo a codemagic
+3 unirlo al repo local
+4 crear una branch de desarrollo nombrarla dev en el repo local
+   git checkout -b dev
+   git push -u origin dev
+---------------------------------
+CodeMagic SetUp
+---------------------------------
+1. Logearnos con GitHub, BitBucket o GitLab y escoger un
+   repo en especifico.
+
+2. Escoger que es una Flutter App
+3. Configurar los trigres ya que estas
+son las ramas a las que vamos a apuntar para poder hacer el deploy
+Seleccionar Build Triger
+
+----------------------------------  -------  -------  -------------
+|       dev <---- nuestra branch | |Include|| Source|| Add pattern |
+----------------------------------  -------  -------  -------------
+               ---  
+Marcamos ---> | O | Trigger on push importante
+               ---
+Seleccionnamos Add pattern y guardamos
+---------------------------------------------------------------------
+Step 2  ---> Configurar Enviroments variables
+---------------------------------------------------------------------
+1. Para esto necesitamos la bash de git en el proyecto
+2. Nombre de la variable es APP_CONFIG
+3. copiamos y pegamos este comando---> base64 config/app_config.json
+---------------------------------------------------------------------
+Step 3 ----> Configurar el + Antes del build
+---------------------------------------------------------------------
+configurar primero
+Post-build script
+ ----------------------------------------------------------------------------
+| mkdir -p $FCI_BUILD_DIR/config
+  echo $APP_CONFIG | base64 --decode > $FCI_BUILD_DIR/config/app_config.json
+|
+|
+ ----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+Step 4 ----> Configurar la parte del Test
+-----------------------------------------------------------------------------
+En esta parte se debe de marcar 
+-Enable Flutter Analyzer
+-Enable Futter Test
+-Stop build if tests fail
+GUARDAR MUY IMPORTANTE
+------------------------------------------------------------------------------
+Step 5 configurar build despues del + signo
+------------------------------------------------------------------------------
+-Importante limitarlo solo a Android desmarcas ios, web, MacOs y Linux,
+- Marcas Debug option
+
+Configurar Build arguments
+          -----------------------------------   
+android  |-debug |-t lib/main/main_dev.dart
+          -----------------------------------
+
+Seleccionar la bran de devlopment
+Start your first build
+
+
+------------------------------------------------------------------------------
+Configuracion entorno de produccion cambiar:
+------------------------------------------------------------------------------
+Step 1
+------------------------------------------------------------------------------
+Crear un nuevo WorkFlow y nombrar Dev WorkFlow y ProdWorkFlow
+y en Prod WorkFlow
+------------------------------------------------------------------------------
+Step 2| Cambiar el build trigger
+-------------------------------------------------------------------------------
+
+Pasarla de dev a main branch ya que aca tenemos nuestro codigo de produccion
+----------------------------------  -------  -------  -------------
+| main <----nueva nuestra branch | |Include|| Source|| Add pattern |
+----------------------------------  -------  -------  -------------
+SAVE
+----------------------
+ Step 3
+--------------------------------------------------------------------------------
+| Cambiar el app_config.json a PROD extremely scret etc..
+--------------------------------------------------------------------------------
+Control + s
+GEneramos un nuevo json--> en la terminal: base64 config/app_config.json
+Copiamos el valor y lo pegamos en Enviromento variables
+-------------------------------------------------------------------------------------
+APP_CONFIG |        =  | variable value| <- aca el base64 generado  | o | Secure| Add|
+-------------------------------------------------------------------------------------
+Le damos add y Save
+-------------------------------------------------------------------------------------
+IMPORTANTE Cambiar los Buil Arguments
+Configurar Build arguments
+          -----------------------------------   
+android  |-debug | -t lib/main/main_prod.dart
+          -----------------------------------
+-------------------------------------------------------------------------------------
+En local 
+nos cambiamos a la rama main y probocamos un cambio peuqeño 
+en este caso cambiamos la variable de entorno dev= 'development'
+le damos git commit y git push origin main
+--------------------------------------------------------------------
+Regresamos a CODEMAGIC
+le damos SAVE y Start Build
